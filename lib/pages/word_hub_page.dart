@@ -37,11 +37,29 @@ class _WordHubPageState extends State<WordHubPage> {
   }
 
   Future<void> _play(VocabEntry e) async {
-    if (e.audioUrl == null) return;
+    if (e.audioUrl == null) {
+      _showMissingAudioMsg();
+      return;
+    }
     try {
       await _player.stop();
       await _player.play(UrlSource(_api.audioUri(e.audioUrl!).toString()));
-    } catch (_) {}
+    } catch (_) {
+      _showMissingAudioMsg();
+    }
+  }
+
+  void _showMissingAudioMsg() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            const Text('Audio clip is currently unavailable on the server.'),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -156,33 +174,44 @@ class _WordHubPageState extends State<WordHubPage> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            _pill('✨ Word of the Day', secondaryFixed.withOpacity(0.4), secondary),
+            _pill('✨ Word of the Day', secondaryFixed.withOpacity(0.4),
+                secondary),
             _pill('Central Izon', tertiaryFixed.withOpacity(0.4), tertiary),
           ]),
           const SizedBox(height: 10),
           Row(children: [
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(e.word,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.w800, color: primary)),
-                if (e.pronunciation != null)
-                  Text('/${e.pronunciation}/',
-                      style: TextStyle(
-                          fontSize: 13, color: onSurfaceVariant, fontStyle: FontStyle.italic)),
-                const SizedBox(height: 4),
-                Text(e.translation,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(e.word,
+                        style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: primary)),
+                    if (e.pronunciation != null)
+                      Text('/${e.pronunciation}/',
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: onSurfaceVariant,
+                              fontStyle: FontStyle.italic)),
+                    const SizedBox(height: 4),
+                    Text(e.translation,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w700)),
+                  ]),
             ),
             GestureDetector(
               onTap: () => _play(e),
               child: Container(
-                width: 48, height: 48,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: tertiary,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [BoxShadow(color: Color(0xFF004B73), offset: Offset(0, 4))],
+                  boxShadow: const [
+                    BoxShadow(color: Color(0xFF004B73), offset: Offset(0, 4))
+                  ],
                 ),
                 child: const Icon(Icons.volume_up, color: onTertiary, size: 26),
               ),
@@ -192,7 +221,8 @@ class _WordHubPageState extends State<WordHubPage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: surfaceContainerLow, borderRadius: BorderRadius.circular(10)),
+                color: surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Icon(Icons.auto_stories, color: secondary, size: 20),
               const SizedBox(width: 8),
@@ -212,9 +242,11 @@ class _WordHubPageState extends State<WordHubPage> {
   Widget _pill(String label, Color bg, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text(label,
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textColor)),
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700, color: textColor)),
     );
   }
 
@@ -226,14 +258,17 @@ class _WordHubPageState extends State<WordHubPage> {
         const Text('Interactive Flashcard',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         const Spacer(),
-        Text('Tap to inspect', style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
+        Text('Tap to inspect',
+            style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
       ]),
       const SizedBox(height: 10),
       GestureDetector(
         onTap: () => setState(() => _cardFlipped = !_cardFlipped),
         child: AnimatedCrossFade(
           duration: const Duration(milliseconds: 350),
-          crossFadeState: _cardFlipped ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: _cardFlipped
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           firstChild: _cardFront(e),
           secondChild: _cardBack(e),
         ),
@@ -248,30 +283,43 @@ class _WordHubPageState extends State<WordHubPage> {
       decoration: BoxDecoration(
         color: surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 3))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 3))
+        ],
       ),
       child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          _pill('Category: ${e.category}', primaryFixed.withOpacity(0.4), onPrimaryFixedVariant),
+          _pill('Category: ${e.category}', primaryFixed.withOpacity(0.4),
+              onPrimaryFixedVariant),
           Row(children: [
             const Icon(Icons.touch_app, size: 16, color: onSurfaceVariant),
             const SizedBox(width: 3),
-            Text('Flip', style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
+            Text('Flip',
+                style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
           ]),
         ]),
         const Spacer(),
         Row(children: [
           Container(
-            width: 56, height: 56,
-            decoration: BoxDecoration(color: surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
-            child: const Center(child: Text('🙏', style: TextStyle(fontSize: 28))),
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+                color: surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(16)),
+            child:
+                const Center(child: Text('🙏', style: TextStyle(fontSize: 28))),
           ),
           const SizedBox(width: 14),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(e.word,
-                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: primary)),
+                style: const TextStyle(
+                    fontSize: 30, fontWeight: FontWeight.w800, color: primary)),
             Text(e.translation,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           ]),
         ]),
         const Spacer(),
@@ -279,7 +327,8 @@ class _WordHubPageState extends State<WordHubPage> {
           Text('Essential Riverine Etiquette',
               style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
           Text('Tap for example →',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: secondary)),
+              style: const TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: secondary)),
         ]),
       ]),
     );
@@ -292,7 +341,12 @@ class _WordHubPageState extends State<WordHubPage> {
       decoration: BoxDecoration(
         color: surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 3))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 3))
+        ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -300,19 +354,28 @@ class _WordHubPageState extends State<WordHubPage> {
           Row(children: [
             const Icon(Icons.replay, size: 16, color: onSurfaceVariant),
             const SizedBox(width: 3),
-            Text('Tap to return', style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
+            Text('Tap to return',
+                style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
           ]),
         ]),
         const SizedBox(height: 10),
         Text('Example Dialogue',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: tertiary, letterSpacing: 0.5)),
+            style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: tertiary,
+                letterSpacing: 0.5)),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: surfaceContainerLowest, borderRadius: BorderRadius.circular(10)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          decoration: BoxDecoration(
+              color: surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(10)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('"${e.word}, Tari!"',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: primary)),
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w700, color: primary)),
             Text('"Greetings, Tari! (${e.translation})"',
                 style: TextStyle(fontSize: 14, color: onSurfaceVariant)),
           ]),
@@ -322,7 +385,8 @@ class _WordHubPageState extends State<WordHubPage> {
           const Icon(Icons.check_circle, size: 16, color: primary),
           const SizedBox(width: 4),
           const Text('High frequency word',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: primary)),
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: primary)),
         ]),
       ]),
     );
@@ -338,7 +402,9 @@ class _WordHubPageState extends State<WordHubPage> {
         const Spacer(),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(color: surfaceContainer, borderRadius: BorderRadius.circular(999)),
+          decoration: BoxDecoration(
+              color: surfaceContainer,
+              borderRadius: BorderRadius.circular(999)),
           child: Text('${entries.length} ready',
               style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
         ),
@@ -357,44 +423,67 @@ class _WordHubPageState extends State<WordHubPage> {
       decoration: BoxDecoration(
         color: surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Row(children: [
         GestureDetector(
           onTap: () => _play(e),
           child: Container(
-            width: 44, height: 44,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: tertiaryFixed,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: const [BoxShadow(color: tertiaryFixedDim, offset: Offset(0, 3))],
+              boxShadow: const [
+                BoxShadow(color: tertiaryFixedDim, offset: Offset(0, 3))
+              ],
             ),
-            child: const Icon(Icons.volume_up, color: onTertiaryFixed, size: 22),
+            child:
+                const Icon(Icons.volume_up, color: onTertiaryFixed, size: 22),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Text(e.word, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              Text(e.word,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: primaryFixed.withOpacity(0.4), borderRadius: BorderRadius.circular(4)),
+                    color: primaryFixed.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(4)),
                 child: Text(
-                  stars == 3 ? 'Mastered' : stars == 2 ? 'Practicing' : 'Learning',
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: onPrimaryFixedVariant),
+                  stars == 3
+                      ? 'Mastered'
+                      : stars == 2
+                          ? 'Practicing'
+                          : 'Learning',
+                  style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: onPrimaryFixedVariant),
                 ),
               ),
             ]),
-            Text(e.translation, style: TextStyle(fontSize: 13, color: onSurfaceVariant)),
+            Text(e.translation,
+                style: TextStyle(fontSize: 13, color: onSurfaceVariant)),
             Row(
-              children: List.generate(3, (i) => Icon(
-                i < stars ? Icons.star : Icons.star_border,
-                size: 15,
-                color: i < stars ? secondaryContainer : outlineVariant,
-              )),
+              children: List.generate(
+                  3,
+                  (i) => Icon(
+                        i < stars ? Icons.star : Icons.star_border,
+                        size: 15,
+                        color: i < stars ? secondaryContainer : outlineVariant,
+                      )),
             ),
           ]),
         ),
@@ -415,17 +504,22 @@ class _WordHubPageState extends State<WordHubPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
+          color: surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
       child: Column(children: [
         Row(children: [
           Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(color: secondaryContainer, borderRadius: BorderRadius.circular(12)),
-            child: const Center(child: Text('🎧', style: TextStyle(fontSize: 20))),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+                color: secondaryContainer,
+                borderRadius: BorderRadius.circular(12)),
+            child:
+                const Center(child: Text('🎧', style: TextStyle(fontSize: 20))),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('Quick 2-Minute Audio Drill',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
               Text('Sharpen ear tones & dialect accuracy',
@@ -434,9 +528,14 @@ class _WordHubPageState extends State<WordHubPage> {
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: secondaryFixed, borderRadius: BorderRadius.circular(999)),
+            decoration: BoxDecoration(
+                color: secondaryFixed,
+                borderRadius: BorderRadius.circular(999)),
             child: const Text('+25 XP',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: onSecondaryFixed)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: onSecondaryFixed)),
           ),
         ]),
         const SizedBox(height: 10),
@@ -445,13 +544,19 @@ class _WordHubPageState extends State<WordHubPage> {
           decoration: BoxDecoration(
             color: primary,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: const [BoxShadow(color: Color(0xFF005320), offset: Offset(0, 4))],
+            boxShadow: const [
+              BoxShadow(color: Color(0xFF005320), offset: Offset(0, 4))
+            ],
           ),
-          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          child:
+              const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.hearing, color: onPrimary, size: 20),
             SizedBox(width: 8),
             Text('Start Listening Drill',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: onPrimary)),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: onPrimary)),
           ]),
         ),
       ]),

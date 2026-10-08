@@ -12,6 +12,7 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
+  final TextEditingController _nameController = TextEditingController();
   String _goal = 'family';
   String _cadence = 'Steady';
 
@@ -50,6 +51,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
   ];
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: surface,
@@ -58,6 +65,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           children: [
             _mascotBubble(),
+            const SizedBox(height: 24),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'What is your name? / Imini duko?',
+                labelStyle: TextStyle(color: onSurfaceVariant),
+                filled: true,
+                fillColor: surfaceContainerLowest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
             Text('Pick your primary motivation',
                 style: TextStyle(
@@ -79,7 +100,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
               Icon(Icons.bolt, size: 16, color: primary),
               Text(' Flexible',
                   style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w700, color: primary)),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: primary)),
             ]),
             const SizedBox(height: 10),
             GridView.count(
@@ -96,7 +119,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
               label: 'Continue / Pọọn',
               icon: Icons.arrow_forward,
               onTap: () {
+                final name = _nameController.text.trim();
                 final profile = LearnerProfile(
+                  name: name.isEmpty ? 'Learner' : name,
                   goal: _goal,
                   cadence: _cadence,
                 );
@@ -205,9 +230,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected
-              ? primary.withOpacity(0.08)
-              : surfaceContainerLowest,
+          color: selected ? primary.withOpacity(0.08) : surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -260,8 +283,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _cadencePill(
-      (String label, String sub) cadence) {
+  Widget _cadencePill((String label, String sub) cadence) {
     final selected = _cadence == cadence.$1;
     return GestureDetector(
       onTap: () => setState(() => _cadence = cadence.$1),

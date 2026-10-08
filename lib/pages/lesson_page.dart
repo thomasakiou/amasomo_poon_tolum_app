@@ -64,11 +64,28 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   Future<void> _playAudio(VocabEntry entry) async {
-    if (entry.audioUrl == null) return;
+    if (entry.audioUrl == null) {
+      _showMissingAudioMsg();
+      return;
+    }
     try {
       await _player.stop();
       await _player.play(UrlSource(_api.audioUri(entry.audioUrl!).toString()));
-    } catch (_) {}
+    } catch (_) {
+      _showMissingAudioMsg();
+    }
+  }
+
+  void _showMissingAudioMsg() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Audio clip is currently unavailable on the server.'),
+        backgroundColor: errorColor,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void _check() {
@@ -94,7 +111,7 @@ class _LessonPageState extends State<LessonPage> {
       final profile = widget.profile
         ..xp += _score * 15
         ..cowries += _score * 5
-        ..currentLesson = (widget.profile.currentLesson + 1).clamp(1, 5);
+        ..currentLesson = (widget.profile.currentLesson + 1).clamp(1, 50);
       widget.onComplete(profile);
     }
   }
@@ -161,7 +178,8 @@ class _LessonPageState extends State<LessonPage> {
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: errorContainer,
                     borderRadius: BorderRadius.circular(999),
@@ -176,7 +194,8 @@ class _LessonPageState extends State<LessonPage> {
                 ),
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: tertiaryFixed,
                     borderRadius: BorderRadius.circular(999),
@@ -186,7 +205,9 @@ class _LessonPageState extends State<LessonPage> {
                     const SizedBox(width: 3),
                     Text('+${_score * 15} XP',
                         style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w700, color: onTertiaryFixed)),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: onTertiaryFixed)),
                   ]),
                 ),
               ],
@@ -509,7 +530,8 @@ class _LessonPageState extends State<LessonPage> {
               color: secondaryContainer,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.school, size: 18, color: onSecondaryContainer),
+            child:
+                const Icon(Icons.school, size: 18, color: onSecondaryContainer),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -545,7 +567,8 @@ class _LessonPageState extends State<LessonPage> {
           icon: Icons.arrow_forward,
           onTap: _selected != null ? _check : () {},
           color: _selected != null ? primary : surfaceContainerHigh,
-          shadowColor: _selected != null ? const Color(0xFF005320) : outlineVariant,
+          shadowColor:
+              _selected != null ? const Color(0xFF005320) : outlineVariant,
           textColor: _selected != null ? onPrimary : onSurfaceVariant,
         ),
       );
@@ -599,16 +622,15 @@ class _LessonPageState extends State<LessonPage> {
                             ? 'You caught the nuanced greeting!'
                             : 'Correct: ${q.options[q.correctIndex]}',
                         style: TextStyle(
-                            fontSize: 13,
-                            color: onPrimary.withOpacity(0.9)),
+                            fontSize: 13, color: onPrimary.withOpacity(0.9)),
                       ),
                     ],
                   ),
                 ),
                 if (_correct)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: secondaryContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -661,8 +683,7 @@ class _LessonPageState extends State<LessonPage> {
                                   color: _correct ? primary : errorColor)),
                           const SizedBox(width: 6),
                           Icon(Icons.arrow_forward,
-                              size: 20,
-                              color: _correct ? primary : errorColor),
+                              size: 20, color: _correct ? primary : errorColor),
                         ],
                       ),
                     ),

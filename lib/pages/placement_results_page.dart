@@ -36,8 +36,7 @@ class PlacementResultsPage extends StatelessWidget {
             const SizedBox(height: 10),
             Row(children: [
               Expanded(
-                child: _secondaryBtn(
-                    Icons.quiz, 'Review Test', () {}),
+                child: _secondaryBtn(Icons.quiz, 'Review Test', () {}),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -123,9 +122,7 @@ class PlacementResultsPage extends StatelessWidget {
                 letterSpacing: -0.5),
             children: [
               const TextSpan(text: 'Wadụna! '),
-              TextSpan(
-                  text: 'Test Complete',
-                  style: TextStyle(color: primary)),
+              TextSpan(text: 'Test Complete', style: TextStyle(color: primary)),
             ],
           ),
         ),
@@ -148,9 +145,13 @@ class PlacementResultsPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: _rewardChip('🐚', '+${profile.cowries} Cowries', 'Mastery Bonus', secondaryFixed)),
+          Expanded(
+              child: _rewardChip('🐚', '+${profile.cowries} Cowries',
+                  'Mastery Bonus', secondaryFixed)),
           const SizedBox(width: 8),
-          Expanded(child: _rewardChip('🔥', '${profile.streak}-Day Boost', 'Streak Ignited', secondaryFixedDim.withOpacity(0.4))),
+          Expanded(
+              child: _rewardChip('🔥', '${profile.streak}-Day Boost',
+                  'Streak Ignited', secondaryFixedDim.withOpacity(0.4))),
         ],
       ),
     );
@@ -169,7 +170,8 @@ class PlacementResultsPage extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-            child: Center(child: Text(icon, style: const TextStyle(fontSize: 16))),
+            child:
+                Center(child: Text(icon, style: const TextStyle(fontSize: 16))),
           ),
           const SizedBox(width: 8),
           Column(
@@ -177,7 +179,9 @@ class PlacementResultsPage extends StatelessWidget {
             children: [
               Text(title,
                   style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w700, color: secondary)),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: secondary)),
               Text(sub,
                   style: TextStyle(fontSize: 11, color: onSurfaceVariant)),
             ],
@@ -256,8 +260,10 @@ class PlacementResultsPage extends StatelessWidget {
                         ),
                       ]),
                       const SizedBox(height: 4),
-                      Text('Intermediate Beginner • Natural ear for Central Izon rhythm.',
-                          style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
+                      Text(
+                          'Intermediate Beginner • Natural ear for Central Izon rhythm.',
+                          style:
+                              TextStyle(fontSize: 12, color: onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -307,12 +313,16 @@ class PlacementResultsPage extends StatelessWidget {
           trailing: 'Skipped',
         ),
         Center(
-          child: Container(
-            width: 24,
-            height: 24,
-            margin: const EdgeInsets.symmetric(vertical: -4),
-            decoration: BoxDecoration(color: tertiary, shape: BoxShape.circle),
-            child: const Icon(Icons.arrow_downward, size: 14, color: onTertiary),
+          child: Transform.translate(
+            offset: const Offset(0, -4),
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration:
+                  BoxDecoration(color: tertiary, shape: BoxShape.circle),
+              child:
+                  const Icon(Icons.arrow_downward, size: 14, color: onTertiary),
+            ),
           ),
         ),
         Container(
@@ -386,8 +396,7 @@ class PlacementResultsPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.lock_open,
-                      size: 18, color: onTertiaryFixed),
+                  const Icon(Icons.lock_open, size: 18, color: onTertiaryFixed),
                   const SizedBox(width: 6),
                   Text('Unlocked 14 River Lessons',
                       style: const TextStyle(
@@ -443,8 +452,8 @@ class PlacementResultsPage extends StatelessWidget {
               children: [
                 Row(children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: tagBg,
                       borderRadius: BorderRadius.circular(4),
@@ -500,8 +509,8 @@ class PlacementResultsPage extends StatelessWidget {
             Icon(icon, size: 18, color: onSurface),
             const SizedBox(width: 6),
             Text(label,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w700)),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/learner_profile.dart';
 import '../theme.dart';
@@ -50,7 +51,8 @@ class LearningPathPage extends StatelessWidget {
               color: secondaryFixed,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Center(child: Text('⚡', style: TextStyle(fontSize: 18))),
+            child:
+                const Center(child: Text('⚡', style: TextStyle(fontSize: 18))),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -64,7 +66,8 @@ class LearningPathPage extends StatelessWidget {
                         color: secondary,
                         letterSpacing: 0.5)),
                 const Text('Score 90%+ in 1 lesson',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -156,7 +159,8 @@ class LearningPathPage extends StatelessWidget {
                         blurRadius: 0)
                   ],
                 ),
-                child: const Icon(Icons.auto_stories, color: onPrimary, size: 22),
+                child:
+                    const Icon(Icons.auto_stories, color: onPrimary, size: 22),
               ),
             ],
           ),
@@ -203,8 +207,8 @@ class LearningPathPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: onPrimary.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -228,48 +232,72 @@ class LearningPathPage extends StatelessWidget {
   }
 
   Widget _pathMap(BuildContext context) {
+    const totalNodes = 50;
+    const nodeHeight = 135.0;
+    final nodes = List.generate(totalNodes, (index) {
+      final id = index + 1;
+      final isChest = id % 5 == 0;
+      final y = index * nodeHeight;
+      final xOffset = math.sin(index * 0.7) * 0.55;
+
+      return (
+        id: id,
+        top: y,
+        alignX: xOffset,
+        title: isChest ? 'Cowrie Chest' : '$id. Core Lesson $id',
+        sub: isChest ? '' : 'Vocabulary Expansion',
+        isChest: isChest,
+      );
+    });
+
+    final totalHeight = totalNodes * nodeHeight;
+
     return SizedBox(
-      height: 520,
+      height: totalHeight + 100,
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           CustomPaint(
-            size: const Size(double.infinity, 520),
-            painter: _PathPainter(),
+            size: Size(double.infinity, totalHeight),
+            painter: _PathPainter(totalNodes, nodeHeight),
           ),
-          // Node 1 - completed
-          Positioned(
-            top: 0,
-            left: 40,
-            child: _completedNode('1. Morning Greetings', 'Ebimi nua • Mastered'),
-          ),
-          // Node 2 - completed
-          Positioned(
-            top: 120,
-            right: 40,
-            child: _completedNode('2. Respectful Inquiries', 'Dooo / Anua • Mastered'),
-          ),
-          // Node 3 - active
-          Positioned(
-            top: 250,
-            left: 60,
-            child: _activeNode(context),
-          ),
-          // Node 4 - locked (cowrie chest)
-          Positioned(
-            top: 380,
-            right: 50,
-            child: _lockedChestNode(),
-          ),
-          // Node 5 - locked
-          Positioned(
-            top: 450,
-            left: 50,
-            child: _lockedNode('5. Daily Words'),
-          ),
+          for (final node in nodes)
+            Positioned(
+              top: node.top,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment(node.alignX, 0),
+                child: _buildNode(context, node),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  Widget _buildNode(
+      BuildContext context,
+      ({
+        int id,
+        double top,
+        double alignX,
+        String title,
+        String sub,
+        bool isChest
+      }) node) {
+    if (node.id < profile.currentLesson) {
+      if (node.isChest) return _lockedChestNode();
+      return _completedNode(node.title, '${node.sub} • Mastered');
+    }
+    if (node.id == profile.currentLesson) {
+      if (node.isChest) return _lockedChestNode();
+      return _activeNode(context, node.title, node.sub);
+    }
+    if (node.isChest) {
+      return _lockedChestNode();
+    }
+    return _lockedNode(node.title);
   }
 
   Widget _completedNode(String title, String sub) {
@@ -317,17 +345,16 @@ class LearningPathPage extends StatelessWidget {
           ),
           child: Column(children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w700)),
-            Text(sub,
-                style: TextStyle(fontSize: 11, color: primary)),
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            Text(sub, style: TextStyle(fontSize: 11, color: primary)),
           ]),
         ),
       ],
     );
   }
 
-  Widget _activeNode(BuildContext context) {
+  Widget _activeNode(BuildContext context, String title, String subtitle) {
     return Column(
       children: [
         Row(mainAxisSize: MainAxisSize.min, children: [
@@ -347,7 +374,7 @@ class LearningPathPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Tọrọ nua!',
+                  Text(subtitle,
                       style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -404,8 +431,7 @@ class LearningPathPage extends StatelessWidget {
                         blurRadius: 0)
                   ],
                 ),
-                child: const Icon(Icons.play_arrow,
-                    color: onPrimary, size: 40),
+                child: const Icon(Icons.play_arrow, color: onPrimary, size: 40),
               ),
             ),
           ],
@@ -419,8 +445,7 @@ class LearningPathPage extends StatelessWidget {
               color: secondaryContainer,
               borderRadius: BorderRadius.circular(999),
               boxShadow: const [
-                BoxShadow(
-                    color: secondary, offset: Offset(0, 4), blurRadius: 0)
+                BoxShadow(color: secondary, offset: Offset(0, 4), blurRadius: 0)
               ],
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -446,8 +471,8 @@ class LearningPathPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        const Text('3. Family Welcomes',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        Text(title,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -559,7 +584,8 @@ class LearningPathPage extends StatelessWidget {
               color: tertiaryFixed,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(child: Text('🛶', style: TextStyle(fontSize: 24))),
+            child:
+                const Center(child: Text('🛶', style: TextStyle(fontSize: 24))),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -575,8 +601,8 @@ class LearningPathPage extends StatelessWidget {
                           letterSpacing: 0.5)),
                   const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: surfaceContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -586,8 +612,8 @@ class LearningPathPage extends StatelessWidget {
                   ),
                 ]),
                 const Text('The River, Fishing & Market Living',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700)),
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 Text('Beni & Fiyai • Waterways culture',
                     style: TextStyle(fontSize: 12, color: onSurfaceVariant)),
               ],
@@ -596,8 +622,8 @@ class LearningPathPage extends StatelessWidget {
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
-                color: surfaceContainer, shape: BoxShape.circle),
+            decoration:
+                BoxDecoration(color: surfaceContainer, shape: BoxShape.circle),
             child: Icon(Icons.lock, color: outline, size: 18),
           ),
         ],
@@ -607,6 +633,10 @@ class LearningPathPage extends StatelessWidget {
 }
 
 class _PathPainter extends CustomPainter {
+  _PathPainter(this.totalNodes, this.nodeHeight);
+  final int totalNodes;
+  final double nodeHeight;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -615,14 +645,32 @@ class _PathPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    final path = Path()
-      ..moveTo(size.width * 0.5, 40)
-      ..cubicTo(size.width * 0.3, 100, size.width * 0.25, 150,
-          size.width * 0.3, 200)
-      ..cubicTo(size.width * 0.35, 250, size.width * 0.7, 240,
-          size.width * 0.7, 310)
-      ..cubicTo(size.width * 0.7, 380, size.width * 0.3, 400,
-          size.width * 0.35, 460);
+    final path = Path();
+    final xCenter = size.width / 2;
+    // Align scales between -1 and +1 with 0 as center.
+    // So 0.55 means 55% of the distance from the center to the edge.
+    final maxOffset = size.width / 2;
+
+    for (int i = 0; i < totalNodes; i++) {
+      final y = i * nodeHeight + 50;
+      final xOffset = math.sin(i * 0.7) * 0.55;
+      final x = xCenter + (xOffset * maxOffset);
+
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        final prevY = (i - 1) * nodeHeight + 50;
+        final prevXOffset = math.sin((i - 1) * 0.7) * 0.55;
+        final prevX = xCenter + (prevXOffset * maxOffset);
+
+        final cp1X = prevX;
+        final cp1Y = prevY + nodeHeight / 1.5;
+        final cp2X = x;
+        final cp2Y = prevY + nodeHeight / 3;
+
+        path.cubicTo(cp1X, cp1Y, cp2X, cp2Y, x, y);
+      }
+    }
 
     canvas.drawPath(path, paint);
 
@@ -635,5 +683,5 @@ class _PathPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
